@@ -14,4 +14,7 @@ I tried to make the cleanest and most capable CS:GO cheating software developeme
 ![sample](https://raw.githubusercontent.com/otvv/csgo-linux-cheat-sdk/main/repo/sample.png)
 ***
 
-**NOTE:** As of today (2023/04/01) the shared-library can be injected just fine, so initially you wont need to update anything. 
+**NOTE:** As of today (2023/04/01) the shared-library can be injected just fine.
+
+(even tho you are able to inject/load the sdk without any ussues, don't assume that everything is updated and working as intended,<br>
+some stuff is clearly outdated _(or not)_ like: `ItemsDefinitionIndex` and `ClassID` enums, some netvars might've changed tables, etc.)
