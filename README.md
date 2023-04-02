@@ -14,4 +14,4 @@ I tried to make the cleanest and most capable CS:GO cheating software developeme
 ![sample](https://raw.githubusercontent.com/otvv/csgo-linux-cheat-sdk/main/repo/sample.png)
 ***
 
-**NOTE:** As of today (2023/04/01) the shared-library can be injected just fine. 
+**NOTE:** As of today (2023/04/01) the shared-library can be injected just fine, so initially you wont need to update anything. 
