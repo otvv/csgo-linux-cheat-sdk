@@ -4,6 +4,16 @@
 
 #pragma once
 
+#include <dlfcn.h>
+#include <link.h>
+#include <string>
+#include <sstream>
+#include <fstream>
+#include <iostream>
+#include <vector>
+#include <cstddef>
+#include <set>
+
 #include "../helpers/memory.hpp"
 
 // interfaces
@@ -70,6 +80,85 @@ namespace csgo
 
 } // namespace csgo
 
+namespace manager
+{
+  inline void dump(std::ofstream &_file)
+  {
+    std::stringstream ss;
+
+    // will be used to store all modules loaded by the game's process
+    static std::vector<const char*> loaded_modules;
+
+    dl_iterate_phdr([](dl_phdr_info* info, size_t size, void* data)
+    {
+      if (size != 0 && strlen(info->dlpi_name) > 0)
+      {
+        reinterpret_cast<std::vector<const char*>*>(data)->emplace_back(info->dlpi_name);
+      }
+
+		  return 0;
+    }, &loaded_modules);
+
+    // walk through module list
+    for (auto &mname : loaded_modules)
+    {
+      // get module handle
+      void* module = dlopen(mname, RTLD_NOLOAD | RTLD_NOW | RTLD_LOCAL);
+
+      if (!module)
+      {
+        continue;
+      }
+
+      // get interface regs address
+      void* interface_regs_addr = dlsym(module, "s_pInterfaceRegs");
+
+      if (!interface_regs_addr)
+      {
+        dlclose(module);
+        continue;
+      }
+
+      // close module handle after we're done with it
+      dlclose(module);
+
+      // will be used to store all interfaces inside a specific module
+      // TODO: find a better way to store the names
+      std::vector<std::string> interface_names;
+
+      // grab the interface list
+      interface_registration_t *interfaces_regs = *reinterpret_cast<interface_registration_t **>(interface_regs_addr);
+
+      // walk interface list and store them in a container
+      for (interface_registration_t *current = interfaces_regs; current != nullptr; current = current->m_next)
+      {
+        interface_names.emplace_back(current->m_interface_name);
+      }
+
+      if (interface_names.empty())
+      {
+        continue;
+      }
+
+      // module name
+      ss << std::endl << '[' << mname << ']' << std::endl;
+
+      for (auto &iname : interface_names)
+      {
+        // interface name
+        ss << iname << std::endl;
+      }
+
+      _file << ss.rdbuf();
+
+      interface_names.clear();
+    }
+
+    loaded_modules.clear();
+  }
+
+} // namespace manager
+
 struct interfaces_t
 {
   interfaces_t()
@@ -107,6 +196,17 @@ struct interfaces_t
     // init chat hud element
     std::uintptr_t LevelInit = reinterpret_cast<std::uintptr_t>(memory::get_vtable(csgo::client_mode)[100]);
     csgo::base_hud_chat = reinterpret_cast<CBaseHudChat*>(memory::get_absolute_address(LevelInit + 0x7, 0x3, 0x7));
+
+    // set this variables to true if you want to dump interfaces into a file
+    constexpr bool DUMP_INTERFACES = true;
+
+    if (DUMP_INTERFACES)
+    {
+      // file name
+      static std::ofstream file("interfaces.dump");
+
+      manager::dump(file); // the file will be generated once the game closes
+    }
   }
 };
 extern interfaces_t interfaces;

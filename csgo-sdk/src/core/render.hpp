@@ -92,7 +92,7 @@ namespace render
     csgo::vgui_surface->DrawColoredText(_font, _x, _y, _color.m_ucRed, _color.m_ucGreen, _color.m_ucBlue, _color.m_ucAlpha, _text.c_str());
   }
 
-  inline bool world_to_screen(vec3_t& _origin, vec3_t& _screen) 
+  inline bool world_to_screen(vec3_t& _origin, vec3_t& _screen)
   {
     return (csgo::debug_overlay->ScreenPosition(_origin, _screen) != 1);
   }
@@ -117,7 +117,7 @@ namespace render
 
     if (initialized)
     {
-      static bool draw_once = [&]() 
+      static bool draw_once = [&]()
       {
         if (!csgo::vgui_surface->IsTextureIDValid(texture_id))
         {

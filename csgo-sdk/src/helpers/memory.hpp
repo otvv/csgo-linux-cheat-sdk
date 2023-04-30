@@ -10,6 +10,7 @@
 #include <vector>
 #include <cstring>
 #include <link.h>
+#include <cstdint>
 
 using create_interface_fn = void *(*)();
 using find_hud_element_fn = unsigned long(*)(void*, const char*);
@@ -21,7 +22,7 @@ struct interface_registration_t
   interface_registration_t *m_next;
 };
 
-struct module_info_t 
+struct module_info_t
 {
 	const char* m_module_name;
 	std::uintptr_t m_address;
@@ -46,7 +47,7 @@ inline bool get_library_info(const char *_module_name, std::uintptr_t *_address,
   if (g_module_info.size() == 0)
   {
     dl_iterate_phdr([](struct dl_phdr_info *_info, std::size_t, void *) {
-      
+
       module_info_t module_info;
 
       // module name
@@ -151,8 +152,20 @@ namespace memory
       return {};
     }
 
+    // get interface regs address
+    void* interface_regs_addr = dlsym(module, "s_pInterfaceRegs");
+
+    if (!interface_regs_addr)
+    {
+      dlclose(module);
+      return {};
+    }
+
+    // close module handle
+    dlclose(module);
+
     // grab the interface list
-    interface_registration_t *interfaces_regs = *reinterpret_cast<interface_registration_t **>(dlsym(module, "s_pInterfaceRegs"));
+    interface_registration_t *interfaces_regs = *reinterpret_cast<interface_registration_t **>(interface_regs_addr);
 
     // iterate through the interface list and grab the correct interface
     for (interface_registration_t *current = interfaces_regs; current != nullptr; current = current->m_next)
@@ -178,7 +191,7 @@ namespace memory
   inline std::uint8_t *get_ida_style_signature(const char *_module, const char *_signature)
   {
     static auto pattern_to_byte = [](const char *_pattern) {
-      
+
 		auto bytes = std::vector<int> { };
 		auto start = const_cast<char*>(_pattern);
 		auto end = const_cast<char*>(_pattern) + std::strlen(_pattern);

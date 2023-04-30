@@ -8,7 +8,7 @@
 // includes
 #include <cmath>
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 #include <algorithm>
 
 namespace FGUI
@@ -106,8 +106,9 @@ namespace FGUI
       float flGreen = (color.m_ucGreen / 255.f);
       float flBlue = (color.m_ucBlue / 255.f);
 
-      float flMax = std::fmaxf(std::fmaxf(flRed, flGreen), flBlue);
-      float flMin = std::fminf(std::fminf(flRed, flGreen), flBlue);
+      float flMax = std::max(std::max(flRed, flGreen), flBlue);
+      float flMin = std::min(std::min(flRed, flGreen), flBlue);
+
 
       float flDelta = (flMax - flMin);
 

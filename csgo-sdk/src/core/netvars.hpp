@@ -160,9 +160,6 @@ struct netvars_t
     // set this variables to true if you want to dump netvars into a file
     constexpr bool DUMP_NETVARS = true;
 
-    // file name
-    std::ofstream file("netvars.dump");
-
     for (CClientClass *data = client_class; data; data = data->next)
     {
       if (data->table)
@@ -172,6 +169,9 @@ struct netvars_t
 
         if (DUMP_NETVARS)
         {
+          // file name
+          static std::ofstream file("netvars.dump");
+
           manager::dump(data->table, file);
         }
       }

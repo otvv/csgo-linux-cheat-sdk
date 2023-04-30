@@ -1,11 +1,11 @@
 # cmake minimum version
 cmake_minimum_required(VERSION 3.0)
 
-# enable c++17
-set(CMAKE_CXX_STANDARD 17)
+# enable c++20
+set(CMAKE_CXX_STANDARD 20)
 
 # project name
-project(malua)
+project(csgo-sdk)
 
 # include directories (including fgui library includes)
 include_directories(${CMAKE_SOURCE_DIR}/src)
@@ -14,7 +14,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 # source files
-add_library(malua SHARED
+add_library(sdk SHARED
 
     #
     src/FGUI/widgets/button.cpp
